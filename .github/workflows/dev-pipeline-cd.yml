@@ -1,0 +1,32 @@
+name: Deployment to Dev Environment
+
+run-name: Deploying to dev Environment
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v2 
+
+     - name: Set outputs
+       id: vars
+       run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+     - name: 'Docker Login'
+       uses: azure/docker-login@v1
+       with:
+         login-server: ${{ secrets.AZURE_REGISTRY_NAME }}
+         username: ${{ secrets.AZURE_REPOSITORY_USER }}
+         password: ${{ secrets.AZURE_REPOSITORY_PASSWORD }}
+
+     - name: Publish Docker Image
+       run: |
+            
+            docker build -t sentirerepo.azurecr.io/sentirekafkaproducer:${{ github.sha }} .
+            docker push sentirerepo.azurecr.io/sentirekafkaproducer:${{ github.sha }}
+
