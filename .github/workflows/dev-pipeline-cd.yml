@@ -29,4 +29,10 @@ jobs:
             
             docker build -t sentirerepo.azurecr.io/sentirekafkaproducer:${{ github.sha }} .
             docker push sentirerepo.azurecr.io/sentirekafkaproducer:${{ github.sha }}
-
+  
+     - name: Deploy to Azure Web App
+       uses: azure/webapps-deploy@v2
+       with:
+           app-name: 'sentirekafkaproducer'
+           publish-profile: ${{ secrets.azureWebAppPublishProfile }}
+           images: '${{ secrets.AZURE_REGISTRY_NAME }}/sentirekafkaproducer:${{ steps.set-sha.outputs.sha_short }}'
